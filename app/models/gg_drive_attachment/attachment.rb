@@ -16,13 +16,13 @@ module GgDriveAttachment
   class Attachment < GgDriveAttachment::ApplicationRecord
     attr_accessor :file
 
-    belongs_to :attachable
+    belongs_to :attachable, optional: true
 
     validates :drive_id, presence: true, if: ->{file.blank?}
     validates :file, presence: true, if: ->{drive_id.blank?}
     validate :validate_file
 
-    after_validation :upload_to_google_drive
+    after_create :upload_to_google_drive
 
     # TODO create backup_file with background job
     # before_save :create_backup_file, if: ->{file.present?}
@@ -51,9 +51,12 @@ module GgDriveAttachment
       return if file.blank? || errors[:file].present?
 
       uploaded_file = GgDriveAttachment::AttachmentUploader.call file.path,
-        file_name: file.original_filename
+        file_name: file.original_filename,
+        parent_names: [ENV["GG_DRIVE_ROOT_FOLDER"], self.class.table_name, self.id]
+          .compact.map(&:to_s)
       self.filename = file.original_filename
       self.drive_id = uploaded_file.id
+      self.save!
     rescue
       errors.add(:file, :upload_failure)
     end
@@ -61,8 +64,11 @@ module GgDriveAttachment
     def create_backup_file
       uploaded_file = GgDriveAttachment::AttachmentUploader.call file.path,
         file_name: file.original_filename,
-        mode: :backup
+        mode: :backup,
+        parent_names: [ENV["GG_DRIVE_ROOT_FOLDER"], self.class.table_name, self.id]
+          .compact.map(&:to_s)
       self.drive_backup_id = uploaded_file.id
+      self.save!
     rescue
       errors.add(:file, :upload_failure)
       false

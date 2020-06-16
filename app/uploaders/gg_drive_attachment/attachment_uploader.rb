@@ -1,17 +1,20 @@
 module GgDriveAttachment
   class AttachmentUploader
     class << self
-      def call file_path, file_name: nil, folder_name: nil, mode: nil
+      def call file_path, file_name: nil, parent_names: nil, mode: nil
         file_name ||= File.basename file_path
 
         drive_client = mode.to_s == "backup" ? backup_client : client
 
-        if folder_name
-          folder = drive_client.collection_by_title(folder_name)
+        last_parent = drive_client.root_collection
+        parents = parent_names.to_a.map do |folder_name|
+          folder = last_parent.subcollection_by_title(folder_name)
           if folder.blank?
-            folder = drive_client.root_collection.create_subcollection(folder_name)
+            folder = last_parent.create_subcollection(folder_name)
+            folder.acl.push(scope_type: 'anyone', with_key: true, role: 'reader')
           end
-          parents = [folder.id].compact
+          last_parent = folder
+          folder.id
         end
 
         drive_client.upload_from_file file_path, file_name,
