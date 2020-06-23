@@ -49,7 +49,7 @@ module GgDriveAttachment
 
     def parent_names
       root_folder = ENV["GG_DRIVE_ROOT_FOLDER"] || Rails.application.class.parent_name
-      [root_folder, self.class.table_name, self.id].compact.map(&:to_s)
+      [root_folder, self.class.name.pluralize.underscore, self.id].compact.map(&:to_s)
     end
 
     def upload_to_google_drive
