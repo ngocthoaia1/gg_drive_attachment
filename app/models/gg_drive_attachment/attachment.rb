@@ -57,8 +57,9 @@ module GgDriveAttachment
       self.filename = file.original_filename
       self.drive_id = uploaded_file.id
       self.save!
-    rescue
+    rescue => e
       errors.add(:file, :upload_failure)
+      raise e
     end
 
     def create_backup_file

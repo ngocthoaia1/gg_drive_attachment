@@ -21,6 +21,11 @@ Or install it yourself as:
 $ gem install gg_drive_attachment
 ```
 
+install migration
+```bash
+rails gg_drive_attachment:install:migrations
+```
+
 ## Contributing
 Contribution directions go here.
 

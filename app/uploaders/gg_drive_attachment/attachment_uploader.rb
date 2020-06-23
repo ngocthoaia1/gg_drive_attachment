@@ -7,7 +7,7 @@ module GgDriveAttachment
         drive_client = mode.to_s == "backup" ? backup_client : client
 
         last_parent = drive_client.root_collection
-        parents = parent_names.to_a.map do |folder_name|
+        parents = parent_names.to_a.compact.map do |folder_name|
           folder = last_parent.subcollection_by_title(folder_name)
           if folder.blank?
             folder = last_parent.create_subcollection(folder_name)
