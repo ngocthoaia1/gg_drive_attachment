@@ -47,13 +47,17 @@ module GgDriveAttachment
 
     private
 
+    def parent_names
+      root_folder = ENV["GG_DRIVE_ROOT_FOLDER"] || Rails.application.class.parent_name
+      [root_folder, self.class.table_name, self.id].compact.map(&:to_s)
+    end
+
     def upload_to_google_drive
       return if file.blank? || errors[:file].present?
 
       uploaded_file = GgDriveAttachment::AttachmentUploader.call file.path,
         file_name: file.original_filename,
-        parent_names: [ENV["GG_DRIVE_ROOT_FOLDER"], self.class.table_name, self.id]
-          .compact.map(&:to_s)
+        parent_names: parent_names
       self.filename = file.original_filename
       self.drive_id = uploaded_file.id
       self.save!
