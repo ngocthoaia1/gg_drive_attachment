@@ -11,14 +11,15 @@ module GgDriveAttachment
           folder = last_parent.subcollection_by_title(folder_name)
           if folder.blank?
             folder = last_parent.create_subcollection(folder_name)
-            folder.acl.push(scope_type: 'anyone', with_key: true, role: 'reader')
           end
           last_parent = folder
           folder.id
         end
 
-        drive_client.upload_from_file file_path, file_name,
+        file = drive_client.upload_from_file file_path, file_name,
           convert: false, parents: parents.presence
+        file.acl.push(scope_type: 'anyone', with_key: true, role: 'reader') if file
+        file
       end
 
       def client
