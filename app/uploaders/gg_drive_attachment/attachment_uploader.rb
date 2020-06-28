@@ -17,7 +17,7 @@ module GgDriveAttachment
         end
 
         file = drive_client.upload_from_file file_path, file_name,
-          convert: false, parents: parents.presence
+          convert: false, parents: [parents.last].presence
         file.acl.push(scope_type: 'anyone', with_key: true, role: 'reader') if file
         file
       end
