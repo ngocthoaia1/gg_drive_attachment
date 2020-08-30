@@ -1,7 +1,7 @@
 module GgDriveAttachment
   class AttachmentUploader
     class << self
-      def call file_path, file_name: nil, parent_names: nil, mode: nil
+      def call file_path, file_name: nil, parent_names: nil, mode: nil, sharing: true
         file_name ||= File.basename file_path
 
         drive_client = mode.to_s == "backup" ? backup_client : client
@@ -18,7 +18,12 @@ module GgDriveAttachment
 
         file = drive_client.upload_from_file file_path, file_name,
           convert: false, parents: [parents.last].presence
-        file.acl.push(scope_type: 'anyone', with_key: true, role: 'reader') if file
+        if file && sharing
+          file.acl.push(
+            scope_type: 'anyone', with_key: false, role: 'reader',
+            allow_file_discovery: false
+          )
+        end
         file
       end
 
