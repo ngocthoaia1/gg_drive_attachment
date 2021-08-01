@@ -28,6 +28,4 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rails", "~> 5.2.4", ">= 5.2.4.2"
   spec.add_dependency "google_drive"
   spec.add_development_dependency "sqlite3"
-  spec.add_development_dependency "pry"
-  spec.add_development_dependency "pry-rails"
 end

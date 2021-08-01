@@ -62,16 +62,8 @@ module GgDriveAttachment
       self.drive_id = uploaded_file.id
       self.save!
     rescue => e
-      @retry_times ||= 0
-      if (@retry_times <= 5)
-        sleep 1 + @retry_times / 2
-
-        @retry_times += 1
-        upload_to_google_drive
-      else
-        errors.add(:file, :upload_failure)
-        raise e
-      end
+      errors.add(:file, :upload_failure)
+      raise e
     end
 
     def create_backup_file
